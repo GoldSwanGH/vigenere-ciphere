@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="vigenere-ciphere:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/vigenere_ciphere_jar</output-path>
+    <root id="archive" name="vigenere-ciphere.jar">
+      <element id="module-output" name="vigenere-ciphere" />
+    </root>
+  </artifact>
+</component>
