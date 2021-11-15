@@ -17,7 +17,7 @@ public class UI {
             clearScreen();
             Scanner in = new Scanner(System.in);
             out.println("\nChoose one of the options below: \n1: Encode\n2: Decode\n3: Get number of used alphabets\n"
-                    + "leave: Exit an application\n");
+                    + "4: Change a keyword\nleave: Exit an application\n");
 
             loop: while(true) {
                 switch(in.nextLine()) {
@@ -34,6 +34,17 @@ public class UI {
                     case "3":
                         out.println("Number of alphabets being used: "
                                 + Encoder.getAlphabetsNumber(FileManager.getTextFromFile(encodedPath)));
+                        break loop;
+                    case "4":
+                        out.println("Type a new keyword: ");
+                        String input = in.nextLine();
+                        if (input.length() == 0 || input.length() > N){
+                            out.println("Incorrect keyword!");
+                        }
+                        else {
+                            key = input;
+                            out.println("Keyword is changed");
+                        }
                         break loop;
                     case "leave":
                         System.exit(0);

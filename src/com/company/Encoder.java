@@ -10,7 +10,7 @@ import static java.util.Arrays.asList;
 public class Encoder {
     public static String encode(String rawInput, String rawKeyword) {
         char[] input = rawInput.replaceAll("[^a-zA-Z\\s]","").toUpperCase().toCharArray(); //
-        char[] keyword = rawKeyword.toUpperCase().toCharArray();
+        char[] keyword = rawKeyword.replaceAll("[^a-zA-Z\\s]","").toUpperCase().toCharArray();
 
         StringBuilder result = new StringBuilder();
 
