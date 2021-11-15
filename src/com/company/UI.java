@@ -27,9 +27,9 @@ public class UI {
                         out.println("Encoding went well, you can see results in: " + encodedPath);
                         break loop;
                     case "2":
-                        FileManager.putTextToFile(plainPath,
+                        FileManager.putTextToFile(decodedPath,
                                 Encoder.decode(FileManager.getTextFromFile(encodedPath), key));
-                        out.println("Decoding went well, you can see results in: " + plainPath);
+                        out.println("Decoding went well, you can see results in: " + decodedPath);
                         break loop;
                     case "3":
                         out.println("Number of alphabets being used: "
@@ -42,7 +42,7 @@ public class UI {
                         break;
                 }
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         }
     }
 }
