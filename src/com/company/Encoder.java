@@ -1,13 +1,25 @@
 package com.company;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static com.company.Main.N;
-import static com.company.Main.characters;
+import static com.company.Main.*;
+import static com.company.Main.key;
 import static java.util.Arrays.asList;
 
 public class Encoder {
+    private static class HackInfo {
+        public int alphNum;
+        public ArrayList<Character>[] strList;
+        public HackInfo(int k, ArrayList<Character>[] list) {
+            this.alphNum = k;
+            this.strList = list;
+        }
+    }
+
     public static String encode(String rawInput, String rawKeyword) {
         char[] input = rawInput.replaceAll("[^a-zA-Z\\s]","").toUpperCase().toCharArray(); //
         char[] keyword = rawKeyword.replaceAll("[^a-zA-Z\\s]","").toUpperCase().toCharArray();
@@ -54,7 +66,7 @@ public class Encoder {
         return result.toString();
     }
 
-    public static int getAlphabetsNumber(String encoded) {
+    private static HackInfo getAlphabetsNumber(String encoded) {
         float reference = 0.0667f;
 
         char[] chars = encoded.toUpperCase().toCharArray();
@@ -83,19 +95,92 @@ public class Encoder {
                 possibility += indexes.get(i) - reference;
             }
 
-            possibleAlphs.add(possibility);
-        }
-
-        for (int k = 0; k < N; k++) {
-            if (possibleAlphs.get(k) > 0){
-                return k + 1;
+            if (possibility > 0) {
+                return new HackInfo(k, list);
             }
         }
 
-        return -1;
+        return new HackInfo(-1, null);
     }
 
-    public static float getIndexOfCoincedence(ArrayList<Character> chars) {
+    public static int HackText(String encoded) throws IOException {
+        HackInfo info = getAlphabetsNumber(encoded);
+        Map<Integer, Float> currentIndexes;
+        ArrayList<Integer> resultShifts = new ArrayList<>();
+        Map<String, Float> textIndexes;
+        String tmpKeyword;
+
+
+
+        for (int i = 1; i < info.strList.length; i++) {
+            currentIndexes = new HashMap<>();
+            for (int s = 0; s < N; s++) {
+                ArrayList<Character> shft = shiftString(info.strList[i], s);
+                currentIndexes.put(s, getMutualCoincIdx(info.strList[0], shft));
+            }
+            float maxVal = findMaxIdx(new ArrayList<>(currentIndexes.values()));
+            int maxShift = -1;
+            for (int key : currentIndexes.keySet()) {
+                if (currentIndexes.get(key) == maxVal)
+                    maxShift = key;
+            }
+
+            resultShifts.add(maxShift);
+        }
+
+        tmpKeyword = Main.key;
+        textIndexes = new HashMap<>();
+        String originalString = decode(FileManager.getTextFromFile(encodedPath), tmpKeyword);
+        ArrayList<Character> originalText = new ArrayList<>(originalString.chars()
+                .mapToObj(c -> (char) c).collect(Collectors.toList()));
+
+        for (int i = 0; i < N; i++) {
+            Main.key = characters[i].toString();
+
+            for (int shift : resultShifts) {
+                Main.key += characters[(i + N - shift) % N];
+            }
+            String tryString = decode(FileManager.getTextFromFile(encodedPath), key);
+            ArrayList<Character> tryText = new ArrayList<>(tryString.chars()
+                    .mapToObj(c -> (char) c).collect(Collectors.toList()));
+            textIndexes.put(Main.key, getMutualCoincIdx(originalText, tryText));
+        }
+
+        float maxVal = findMaxIdx(new ArrayList<>(textIndexes.values()));
+        String textKey = "";
+
+        for (String key : textIndexes.keySet()) {
+            if (textIndexes.get(key) == maxVal)
+                textKey = key;
+        }
+
+        System.out.println("Keyword: " + textKey);
+
+        Main.key = tmpKeyword;
+
+        return info.alphNum;
+    }
+
+    private static float findMaxIdx(ArrayList<Float> source) {
+        float max = source.get(0);
+
+        for (float fl : source)
+            max = max > fl ? max : fl;
+
+        return max;
+    }
+
+    private static ArrayList<Character> shiftString(ArrayList<Character> initial, int shift) {
+        ArrayList<Character> shifted = new ArrayList<>();
+
+        for (Character chr : initial) {
+            shifted.add(characters[(asList(characters).indexOf(chr) + shift) % N]);
+        }
+
+        return shifted;
+    }
+
+    private static float getIndexOfCoincedence(ArrayList<Character> chars) {
         // создаем словарь и заполняем его буквами алфавита, чтобы потом считать вхождения букв в строку
         // можно вынести куда-то?
         HashMap<Character, Integer> occurs = new HashMap<>();
@@ -121,6 +206,41 @@ public class Encoder {
 
         // считаем индекс
         result = (float)sum / (chars.size() * (chars.size() - 1));
+
+        // КОНЕЦ
+        return result;
+    }
+
+    private static float getMutualCoincIdx(ArrayList<Character> chars1, ArrayList<Character> chars2) {
+        // создаем словарь и заполняем его буквами алфавита, чтобы потом считать вхождения букв в строку
+        HashMap<Character, Integer> occurs1 = new HashMap<>();
+        HashMap<Character, Integer> occurs2 = new HashMap<>();
+        for (Character character : characters) {
+            occurs1.put(character, 0);
+            occurs2.put(character, 0);
+        }
+        // НАЧАЛО
+
+        float result;
+        int sum = 0;
+
+        // считаем вхождения символов в строку
+        for (Character aChar : chars1) {
+            occurs1.replace(aChar, occurs1.get(aChar) + 1);
+        }
+        for (Character aChar : chars2) {
+            occurs2.replace(aChar, occurs2.get(aChar) + 1);
+        }
+
+        // считаем сумму в числителе
+        for (Character character : characters) {
+            int occur1 = occurs1.get(character);
+            int occur2 = occurs2.get(character);
+            sum += occur1 * occur2;
+        }
+
+        // считаем индекс
+        result = (float) sum / (chars1.size() * chars2.size());
 
         // КОНЕЦ
         return result;

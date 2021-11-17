@@ -33,7 +33,7 @@ public class UI {
                         break loop;
                     case "3":
                         out.println("Number of alphabets being used: "
-                                + Encoder.getAlphabetsNumber(FileManager.getTextFromFile(encodedPath)));
+                                + Encoder.HackText(FileManager.getTextFromFile(encodedPath)));
                         break loop;
                     case "4":
                         out.println("Type a new keyword: ");
@@ -43,7 +43,7 @@ public class UI {
                         }
                         else {
                             key = input;
-                            out.println("Keyword is changed");
+                            out.println("Keyword is changed.");
                         }
                         break loop;
                     case "leave":
