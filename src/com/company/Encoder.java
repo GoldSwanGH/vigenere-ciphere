@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.company.Main.*;
-import static com.company.Main.key;
 import static java.util.Arrays.asList;
 
 public class Encoder {
@@ -72,7 +71,6 @@ public class Encoder {
         char[] chars = encoded.toUpperCase().toCharArray();
         ArrayList<Character>[] list; // храним здесь строчки, на которые разбивается входящая строка
         ArrayList<Float> indexes;
-        ArrayList<Float> possibleAlphs = new ArrayList<>();
 
         for (int k = 1; k <= N; k++) {
             indexes = new ArrayList<>();
@@ -110,8 +108,6 @@ public class Encoder {
         Map<String, Float> textIndexes;
         String tmpKeyword;
 
-
-
         for (int i = 1; i < info.strList.length; i++) {
             currentIndexes = new HashMap<>();
             for (int s = 0; s < N; s++) {
@@ -129,10 +125,8 @@ public class Encoder {
         }
 
         tmpKeyword = Main.key;
+
         textIndexes = new HashMap<>();
-        String originalString = decode(FileManager.getTextFromFile(encodedPath), tmpKeyword);
-        ArrayList<Character> originalText = new ArrayList<>(originalString.chars()
-                .mapToObj(c -> (char) c).collect(Collectors.toList()));
 
         for (int i = 0; i < N; i++) {
             Main.key = characters[i].toString();
@@ -140,10 +134,11 @@ public class Encoder {
             for (int shift : resultShifts) {
                 Main.key += characters[(i + N - shift) % N];
             }
-            String tryString = decode(FileManager.getTextFromFile(encodedPath), key);
+            String tryString = decode(FileManager.getTextFromFile(encodedPath), Main.key);
             ArrayList<Character> tryText = new ArrayList<>(tryString.chars()
-                    .mapToObj(c -> (char) c).collect(Collectors.toList()));
-            textIndexes.put(Main.key, getMutualCoincIdx(originalText, tryText));
+                .mapToObj(c -> (char) c).collect(Collectors.toList()));
+
+            textIndexes.put(Main.key, getEnc(tryText, ' ') + getEnc(tryText, 'E'));
         }
 
         float maxVal = findMaxIdx(new ArrayList<>(textIndexes.values()));
@@ -180,15 +175,24 @@ public class Encoder {
         return shifted;
     }
 
+    private static float getEnc(ArrayList<Character> chars, Character sym) {
+        float result = 0;
+        long enc = 0;
+
+        for (Character chr : chars)
+            enc += chr == sym ? 1 : 0;
+
+        result = (float) enc / chars.size();
+
+        return result;
+    }
+
     private static float getIndexOfCoincedence(ArrayList<Character> chars) {
         // создаем словарь и заполняем его буквами алфавита, чтобы потом считать вхождения букв в строку
-        // можно вынести куда-то?
         HashMap<Character, Integer> occurs = new HashMap<>();
         for (Character character : characters) {
             occurs.put(character, 0);
         }
-
-        // НАЧАЛО
 
         float result;
         long sum = 0;
@@ -207,7 +211,6 @@ public class Encoder {
         // считаем индекс
         result = (float)sum / ((long)chars.size() * ((long)chars.size() - 1));
 
-        // КОНЕЦ
         return result;
     }
 
@@ -219,7 +222,6 @@ public class Encoder {
             occurs1.put(character, 0);
             occurs2.put(character, 0);
         }
-        // НАЧАЛО
 
         float result;
         long sum = 0;
@@ -242,7 +244,6 @@ public class Encoder {
         // считаем индекс
         result = (float) sum / ((long)chars1.size() * (long)chars2.size());
 
-        // КОНЕЦ
         return result;
     }
 }
