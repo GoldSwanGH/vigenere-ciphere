@@ -191,7 +191,7 @@ public class Encoder {
         // НАЧАЛО
 
         float result;
-        int sum = 0;
+        long sum = 0;
 
         // считаем вхождения символов в строку
         for (Character aChar : chars) {
@@ -200,12 +200,12 @@ public class Encoder {
 
         // считаем сумму в числителе
         for (Character character : characters) {
-            int occur = occurs.get(character);
+            long occur = occurs.get(character);
             sum += occur * (occur - 1);
         }
 
         // считаем индекс
-        result = (float)sum / (chars.size() * (chars.size() - 1));
+        result = (float)sum / ((long)chars.size() * ((long)chars.size() - 1));
 
         // КОНЕЦ
         return result;
@@ -222,7 +222,7 @@ public class Encoder {
         // НАЧАЛО
 
         float result;
-        int sum = 0;
+        long sum = 0;
 
         // считаем вхождения символов в строку
         for (Character aChar : chars1) {
@@ -234,13 +234,13 @@ public class Encoder {
 
         // считаем сумму в числителе
         for (Character character : characters) {
-            int occur1 = occurs1.get(character);
-            int occur2 = occurs2.get(character);
+            long occur1 = occurs1.get(character);
+            long occur2 = occurs2.get(character);
             sum += occur1 * occur2;
         }
 
         // считаем индекс
-        result = (float) sum / (chars1.size() * chars2.size());
+        result = (float) sum / ((long)chars1.size() * (long)chars2.size());
 
         // КОНЕЦ
         return result;
